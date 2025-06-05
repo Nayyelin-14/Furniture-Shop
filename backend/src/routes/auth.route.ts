@@ -1,0 +1,27 @@
+import express, { Router } from "express";
+import {
+  confirmPassword,
+  login,
+  logout,
+  register,
+  veridyOtp,
+} from "../controllers/auth/auth.con";
+import {
+  forgetPassword,
+  resetPassowrd,
+  verifyOtpForPassword,
+} from "../controllers/auth/password.con";
+
+const router = Router();
+
+router.post("/register", register);
+router.post("/verify-otp", veridyOtp);
+router.post("/confirm-password", confirmPassword);
+router.post("/login", login);
+router.post("/logout", logout);
+///
+router.post("/forget-password", forgetPassword);
+router.post("/verify", verifyOtpForPassword);
+router.post("/reset-password", resetPassowrd);
+
+export default router;
