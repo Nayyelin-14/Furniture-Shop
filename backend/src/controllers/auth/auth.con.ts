@@ -159,6 +159,7 @@ export const veridyOtp = [
     checkOtpExist(existedOtp?.optCode);
     //-------//
     //otp is verified wrongly for  5 times in one day
+    console.log(existedOtp);
     const lastVerifyDate = new Date(existedOtp!.updatedAt)
       .toISOString()
       .split("T")[0];

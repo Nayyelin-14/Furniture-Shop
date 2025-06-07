@@ -151,7 +151,7 @@ export const getAllPostsByInfinitePagination = [
     console.log("cursor ", lastCursor);
     const limit = req.query.limit || 5;
     const options = {
-      skip: lastCursor ? 1 : 0,
+      skip: lastCursor ? 1 : 0, //	cursor ကို exclude (မထည့်) လုပ်ဖို့
       cursor: lastCursor ? { id: Number(lastCursor) } : undefined,
       take: Number(limit) + 1, // get 1 extra to check if there's a next page
       select: {

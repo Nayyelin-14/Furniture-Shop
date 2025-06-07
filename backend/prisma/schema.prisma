@@ -92,7 +92,7 @@ model Product {
   name String @db.VarChar(255)
   description String
   price Decimal @db.Decimal(10,2)
- images Image[]
+
   discount Decimal @default(0) @db.Decimal(10,2)
   rating Int @default(0) @db.SmallInt
   inventory Int @default(0) 
@@ -107,7 +107,7 @@ model Product {
   orders ProductsOnOrder[]
  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+ images Image[]
   productTags ProductTag[]
 
 }

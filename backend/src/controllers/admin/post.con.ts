@@ -52,7 +52,7 @@ export const createPost = [
     .notEmpty()
     .customSanitizer((value) => sanitizeHtml(value))
     .notEmpty(),
-  body("category", "Category is required").trim().notEmpty().escape(),
+  body("category", "Category is invalid").trim().notEmpty().escape(),
   body("type", "Type is required").trim().notEmpty().escape(),
   body("tags", "Tag is invalid")
     .optional({ nullable: true })
@@ -73,8 +73,8 @@ export const createPost = [
       return next(handleError(errors[0].msg, 400, errorCode.invalid)); //This next(error) skips all other routes/middlewares and jumps directly to your error-handling middleware:
     }
 
-    const productImg = req.file;
-    checkFileIfNotExist(productImg);
+    const postImg = req.file;
+    checkFileIfNotExist(postImg);
     const { title, category, content, body, type, tags } = req.body;
     const user = req.user;
 
@@ -89,11 +89,11 @@ export const createPost = [
       );
     }
 
-    const fileName = productImg?.filename.split(".")[0];
-    imageQueue.add(
-      "optimizedProductImg",
+    const fileName = postImg?.filename.split(".")[0];
+    await imageQueue.add(
+      "optimizedpostImg",
       {
-        filePath: productImg?.path,
+        filePath: postImg?.path,
         fileName: `${fileName}.webp`,
         width: 835,
         height: 577,
@@ -164,14 +164,14 @@ export const updatePost = [
       }
       return next(handleError(errors[0].msg, 400, errorCode.invalid)); //This next(error) skips all other routes/middlewares and jumps directly to your error-handling middleware:
     }
-    const productImg = req?.file;
-    // checkFileIfNotExist(productImg); // not now
+    const postImg = req?.file;
+    // checkFileIfNotExist(postImg); // not now
     const { postId, title, category, content, body, type, tags } = req.body;
     // const userId = req.userId;
     // const user = await getUserById(userId!);
     // if (!user) {
-    //   if (productImg) {
-    //     removeFiles(productImg?.filename!, null);
+    //   if (postImg) {
+    //     removeFiles(postImg?.filename!, null);
     //   }
     //   throw handleError(
     //     "Unauthenticated user.Try Again!!!",
@@ -182,8 +182,8 @@ export const updatePost = [
     const user = req.user;
     const oldPost = await getSinglePostById(Number(postId));
     if (!oldPost) {
-      if (productImg) {
-        removeFiles(productImg?.filename!, null);
+      if (postImg) {
+        removeFiles(postImg?.filename!, null);
       }
       throw handleError(
         "Data doesn't exist for this post",
@@ -195,8 +195,8 @@ export const updatePost = [
     //admin A can create/updated/delete  post one
     //admin B cannot come to create/update/delete to post one that not his post
     if (user!.id !== oldPost!.authorId) {
-      if (productImg) {
-        removeFiles(productImg?.filename!, null);
+      if (postImg) {
+        removeFiles(postImg?.filename!, null);
       }
       throw handleError(
         "You are not belong to this post",
@@ -213,7 +213,7 @@ export const updatePost = [
       tags,
       type,
     };
-    if (productImg) {
+    if (postImg) {
       const imageTodelete = oldPost.image.split(".")[0] + ".webp";
 
       await removeFiles(oldPost.image, imageTodelete);
@@ -222,7 +222,7 @@ export const updatePost = [
 
       const splitFileName = req.file?.filename.split(".")[0];
       await imageQueue.add(
-        "optimizedProductImg",
+        "optimizedpostImg",
         {
           filePath: req.file?.path,
           fileName: `${splitFileName}.webp`,

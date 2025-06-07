@@ -9,7 +9,7 @@ export const getOrSetCache = async (cacheKey: string, cb: any) => {
       return JSON.parse(cacheData);
     }
     console.log("cache missed");
-    const freshData = await cb();
+    const freshData = await cb(); // if there is no cache
     await redisConnection.setex(cacheKey, 3600, JSON.stringify(freshData));
     return freshData;
   } catch (error) {

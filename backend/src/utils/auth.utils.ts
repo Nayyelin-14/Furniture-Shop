@@ -61,3 +61,8 @@ export const checkFileIfNotExist = (file: any) => {
     throw handleError("Invalid file", 400, errorCode.invalid);
   }
 };
+export const checkProductFileIfNotExist = (files: any) => {
+  if (!Array.isArray(files) || files.length === 0) {
+    throw handleError("Invalid file(s)", 400, errorCode.invalid);
+  }
+};

@@ -29,6 +29,7 @@ const invalidateCache = async (pattern: string) => {
       count: 100,
     });
     console.log("stream", stream);
+    //scanStream() ကိုသုံးတဲ့အခါ၊ သူက internally Redis SCAN command ကို loop သုံးပြီး run နေတယ်။မင်းရဲ့ code မှာ while မပါဘူးပေမယ့်, scanStream() က already asynchronous loop ကိုပေးလိုက်တယ်။
     const pipeLine = redisConnection.pipeline(); //Redis မှာ commands တော်တော်များများတစ်ခါတည်းလုပ်ချင်ရင် pipeline သုံး
     console.log(pipeLine, "pipeline");
 
