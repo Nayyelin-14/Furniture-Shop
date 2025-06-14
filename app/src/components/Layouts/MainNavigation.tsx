@@ -8,23 +8,33 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "../ui/navigation-menu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { cn } from "../../lib/utils";
 import type { MainNavItem } from "../../types";
 import { siteConfig } from "../../config/site";
 import { Icons } from "../icons";
+import { Button } from "../ui/button";
 
 interface MenuType {
   items?: MainNavItem[];
 }
+
 const MainNavigation = ({ items }: MenuType) => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   return (
     <div className="hidden lg:flex items-center gap-[1.5rem]">
-      <Link to={"/"} className="flex items-center space-x-2">
+      <Button
+        variant={"ghost"}
+        onClick={
+          () => navigate("/", { state: { filters: searchParams.toString() } }) //state ဆိုတဲ့ additional data တစ်ခု
+        }
+        className="flex items-center space-x-2 hover:bg-white cursor-pointer"
+      >
         <Icons.logo className="size-7" aria-hidden="true" />
         <span className="text-lg font-bold">{siteConfig.name}</span>
         <span className="sr-only">Home</span>
-      </Link>
+      </Button>
       <NavigationMenu>
         <NavigationMenuList>
           {items?.[0]?.card ? (

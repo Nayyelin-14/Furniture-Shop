@@ -1,0 +1,41 @@
+const formdata = await request.formData();
+const authData = Object.fromEntries(formdata);
+This takes all the entries from the FormData object and turns them into a plain JavaScript object.
+
+So if your form looked like this:
+<form>
+  <input name="phone" value="0999999999" />
+  <input name="password" value="secret" />
+</form>
+Then formData contains:
+[
+  ['phone', '0999999999'],
+  ['password', 'secret']
+]
+And Object.fromEntries(formdata) gives you:
+{
+  phone: "0999999999",
+  password: "secret"
+}
+🔁 Equivalent to:
+const authData = {};
+formdata.forEach((value, key) => {
+  authData[key] = value;
+});
+But Object.fromEntries() is cleaner and more concise, and it works well with FormData, Map, or any iterable of key-value pairs.
+Object.fromEntries()	Converts entries (like from FormData) into an object
+
+JSON.stringify	Object → JSON string	{}	'{}' (string)
+JSON.parse	JSON string → Object	'{}' (string)	{} (object)
+
+React Router မှာ useLocation() ဟာ အခုလက်ရှိနေတဲ့ route/page နဲ့ ပတ်သက်တဲ့ အချက်အလက်တွေ ကို ရယူဖို့ သုံးတဲ့ Hook တစ်ခုပဲဖြစ်ပါတယ်။
+
+ဒါရဲ့ return value မှာပါတဲ့အရာတွေက:
+{
+  pathname: "/products",
+  search: "?categories=1,2",
+  hash: "",
+  state: { filters: "categories=1,2&types=3" },
+  key: "abc123"
+}
+

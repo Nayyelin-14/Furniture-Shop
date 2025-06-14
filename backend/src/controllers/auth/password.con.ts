@@ -42,7 +42,7 @@ export const forgetPassword = [
     }
 
     const user = await getUserByPhone(phone);
-    checkUserIfNotExist(user);
+    await checkUserIfNotExist(user);
 
     const otp = "123456"; //for testing
     //     const otp = generateOTP();
@@ -51,13 +51,13 @@ export const forgetPassword = [
     const token = generateToken();
 
     const otpResult = await getOtpByPhone(phone);
-    checkOtpExist(otpResult);
+    await checkOtpExist(otpResult);
 
     let result;
     const latestOtpDate = new Date(otpResult!.updatedAt).toLocaleDateString();
     const currentDate = new Date().toLocaleDateString();
     const isSameDate = latestOtpDate === currentDate;
-    checkOtpErrorInOneDay(isSameDate, otpResult!.error);
+    await checkOtpErrorInOneDay(isSameDate, otpResult!.error);
     if (!isSameDate) {
       const optData = {
         optCode: hashedOtp,
@@ -120,16 +120,16 @@ export const verifyOtpForPassword = [
       phone = phone.substring(2, phone.length);
     }
     const { otp, token } = req.body;
-    const user = await getUserByPhone(phone);
-    checkUserIfNotExist(user);
+    // const user = await getUserByPhone(phone);
+    // await checkUserIfNotExist(user);
 
     const otpResult = await getOtpByPhone(phone);
-    checkOtpExist(otpResult);
+    await checkOtpExist(otpResult);
 
     const latestOtpDate = new Date(otpResult!.updatedAt).toLocaleDateString();
     const currentDate = new Date().toLocaleDateString();
     const isSameDate = latestOtpDate === currentDate;
-    checkOtpErrorInOneDay(isSameDate, otpResult!.error);
+    await checkOtpErrorInOneDay(isSameDate, otpResult!.error);
 
     if (otpResult!.rememberToken !== token) {
       const optData = {
@@ -210,10 +210,10 @@ export const resetPassowrd = [
     }
     const { token, password } = req.body;
     const user = await getUserByPhone(phone);
-    checkUserIfNotExist(user);
+    await checkUserIfNotExist(user);
 
     const otpResult = await getOtpByPhone(phone);
-    checkOtpExist(otpResult);
+    await checkOtpExist(otpResult);
     if (otpResult!.error === 5) {
       const error: any = new Error("Something went wrong. Try again later");
       error.status = 400;

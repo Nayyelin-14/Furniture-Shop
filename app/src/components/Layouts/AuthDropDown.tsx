@@ -1,6 +1,6 @@
 import type { UserType } from "../../types";
 import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
+import { Form, Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -82,14 +82,16 @@ const AuthDropDown = ({ user }: UserProps) => {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <Link
-            to={"/login"}
-            className="group flex items-center gap-2 cursor-pointer"
-          >
-            <Icons.exitIcon className="group-hover:text-red-900 transition-transform duration-300 group-hover:scale-110" />
-            Log out
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-          </Link>
+          <Form action="/logout" method="post">
+            <button
+              type="submit"
+              className="group flex items-center gap-2 cursor-pointer w-full bg-transparent text-black hover:bg-transparent border-none "
+            >
+              <Icons.exitIcon className="group-hover:text-red-900 transition-transform duration-300 group-hover:scale-110" />
+              Log out
+              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+            </button>
+          </Form>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

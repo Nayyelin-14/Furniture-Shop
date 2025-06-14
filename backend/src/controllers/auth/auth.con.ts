@@ -50,7 +50,7 @@ export const register = [
     const isUser = await getUserByPhone(phone);
 
     //error return function
-    checkUserExist(isUser);
+    await checkUserExist(isUser);
 
     //generate OTP function
     const otp = 123456; //testing
@@ -82,7 +82,7 @@ export const register = [
         .split("T")[0];
       const currentDate = new Date().toISOString().split("T")[0];
       const isSameDate = lastRequestDate === currentDate;
-      checkOtpErrorInOneDay(isSameDate, otpHistory.count);
+      await checkOtpErrorInOneDay(isSameDate, otpHistory.count);
 
       if (!isSameDate) {
         //reset error count and store new otp if not the same date
@@ -152,11 +152,11 @@ export const veridyOtp = [
     }
     //user can't be already  existed when verifying
     const isExistedUser = await getUserByPhone(phone);
-    checkUserExist(isExistedUser);
+    await checkUserExist(isExistedUser);
     //there must have otp to verify
 
     const existedOtp = await getOtpByPhone(phone);
-    checkOtpExist(existedOtp?.optCode);
+    await checkOtpExist(existedOtp?.optCode);
     //-------//
     //otp is verified wrongly for  5 times in one day
     console.log(existedOtp);
@@ -166,7 +166,7 @@ export const veridyOtp = [
     const currentDate = new Date().toISOString().split("T")[0];
 
     const isSameDate = lastVerifyDate === currentDate;
-    checkOtpErrorInOneDay(isSameDate, existedOtp!.error);
+    await checkOtpErrorInOneDay(isSameDate, existedOtp!.error);
     //-------//
 
     //check token //
@@ -254,10 +254,10 @@ export const confirmPassword = [
 
     //check user
     const existedUser = await getUserByPhone(phone);
-    checkUserExist(existedUser);
+    await checkUserExist(existedUser);
 
     const otpResult = await getOtpByPhone(phone);
-    checkOtpExist(otpResult);
+    await checkOtpExist(otpResult);
     if (otpResult!.error > 5) {
       const error: any = new Error("Malware Function");
       error.status = 400;
@@ -355,9 +355,9 @@ export const login = [
     }
 
     const user = await getUserByPhone(phone);
-    checkUserIfNotExist(user);
+    await checkUserIfNotExist(user);
 
-    if (user!.status === "FREEZE") {
+    if (user?.status === "FREEZE") {
       return next(
         handleError(
           "Your account has been locked. Try again later",
@@ -467,7 +467,7 @@ export const logout = async (
     return next(handleError("Token is invalid", 400, errorCode.invalid));
   }
   const user = await getUserById(decoded.id);
-  checkUserIfNotExist(user);
+  await checkUserIfNotExist(user);
 
   if (user!.phone !== decoded.phone) {
     const error: any = new Error("Unauthenticated User");

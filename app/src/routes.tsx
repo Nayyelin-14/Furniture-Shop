@@ -1,20 +1,41 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, redirect } from "react-router-dom";
 import Homepage from "./pages/Homepage";
 import { lazy, Suspense } from "react";
 import RootLayout from "./pages/RootLayout";
-import NotFound from "./pages/NotFound";
-import About from "./pages/About";
-
-import Services from "./pages/Services";
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Services = lazy(() => import("./pages/Services"));
 
 const BlogLayout = lazy(() => import("./pages/blogs/BlogLayout"));
 const BlogDetail = lazy(() => import("./pages/blogs/BlogDetail"));
 const Blog = lazy(() => import("./pages/blogs/Blog"));
+const About = lazy(() => import("./pages/About"));
+const ProductDetail = lazy(() => import("./pages/products/ProductDetail"));
+
+const Products = lazy(() => import("./pages/products/Products"));
 import ProductLayout from "./pages/products/ProductLayout";
-import { Products } from "./pages/products/Products";
-import ProductDetail from "./pages/products/ProductDetail";
 import Login from "./pages/Auth/Login";
-import Register from "./pages/Auth/Register";
+
+import {
+  ConfirmPwdAction,
+  loginAction,
+  logoutAction,
+  OTPAction,
+  registerAction,
+} from "./router/actions";
+import {
+  authCheckLoader,
+  ConfirmPwdCheckLoader,
+  GetProductsWithFilers,
+  HomeLoader,
+  InfiniteBlogsLoader,
+  OtpCheckLoader,
+  SinglePostLoader,
+  singleProductLoader,
+} from "./router/loaders";
+import AuthRootLayout from "./pages/Auth/AuthRootLayout";
+import SingUpPage from "./pages/Auth/SignUp";
+import OtpPage from "./pages/Auth/OtpPage";
+import ConfirmPwdPage from "./pages/Auth/ConfirmPwd";
 
 const SusepnseFallback = () => (
   <div className="text-center h-screen">Loading</div>
@@ -27,11 +48,20 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Homepage />,
+        element: (
+          <Suspense fallback={<SusepnseFallback />}>
+            <Homepage />
+          </Suspense>
+        ),
+        loader: HomeLoader,
       },
       {
         path: "About",
-        element: <About />,
+        element: (
+          <Suspense fallback={<SusepnseFallback />}>
+            <About />
+          </Suspense>
+        ),
       },
       {
         path: "blogs",
@@ -48,14 +78,16 @@ const router = createBrowserRouter([
                 <Blog />
               </Suspense>
             ),
+            loader: InfiniteBlogsLoader,
           },
           {
-            path: ":id",
+            path: ":postId",
             element: (
               <Suspense fallback={<SusepnseFallback />}>
                 <BlogDetail />
               </Suspense>
             ),
+            loader: SinglePostLoader,
           },
         ],
       },
@@ -65,28 +97,89 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Products />,
+            element: (
+              <Suspense fallback={<SusepnseFallback />}>
+                <Products />
+              </Suspense>
+            ),
+            loader: GetProductsWithFilers,
           },
           {
-            path: ":productid",
-            element: <ProductDetail />,
+            path: ":productId",
+            element: (
+              <Suspense fallback={<SusepnseFallback />}>
+                <ProductDetail />
+              </Suspense>
+            ),
+            loader: singleProductLoader,
+            errorElement: <div>Something wrong</div>,
           },
         ],
       },
 
       {
         path: "services",
-        element: <Services />,
+        element: (
+          <Suspense fallback={<SusepnseFallback />}>
+            <Services />
+          </Suspense>
+        ),
       },
     ],
   },
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <Suspense fallback={<SusepnseFallback />}>
+        <Login />
+      </Suspense>
+    ),
+    action: loginAction,
+    loader: authCheckLoader,
   },
   {
     path: "/register",
-    element: <Register />,
+    element: <AuthRootLayout />,
+
+    children: [
+      {
+        index: true,
+        element: (
+          <Suspense fallback={<SusepnseFallback />}>
+            <SingUpPage />
+          </Suspense>
+        ),
+        loader: authCheckLoader,
+        action: registerAction,
+      },
+      {
+        path: "otp",
+        element: (
+          <Suspense fallback={<SusepnseFallback />}>
+            <OtpPage />
+          </Suspense>
+        ),
+        loader: OtpCheckLoader,
+        action: OTPAction,
+      },
+      {
+        path: "confirm-password",
+        element: (
+          <Suspense fallback={<SusepnseFallback />}>
+            <ConfirmPwdPage />
+          </Suspense>
+        ),
+        loader: ConfirmPwdCheckLoader,
+        action: ConfirmPwdAction,
+      },
+    ],
+  },
+  {
+    path: "/logout",
+    action: logoutAction,
+    loader: () => {
+      return redirect("/");
+    },
   },
 ]);
 

@@ -8,7 +8,6 @@ import { Button } from "../ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,59 +16,71 @@ import {
 import { Checkbox } from "../ui/checkbox";
 import type { CategoryType } from "../../types";
 
-const items = [
-  {
-    id: "recents",
-    label: "Recents",
-  },
-  {
-    id: "home",
-    label: "Home",
-  },
-  {
-    id: "applications",
-    label: "Applications",
-  },
-  {
-    id: "desktop",
-    label: "Desktop",
-  },
-  {
-    id: "downloads",
-    label: "Downloads",
-  },
-  {
-    id: "documents",
-    label: "Documents",
-  },
-] as const;
+// const items = [
+//   {
+//     id: "recents",
+//     label: "Recents",
+//   },
+//   {
+//     id: "home",
+//     label: "Home",
+//   },
+//   {
+//     id: "applications",
+//     label: "Applications",
+//   },
+//   {
+//     id: "desktop",
+//     label: "Desktop",
+//   },
+//   {
+//     id: "downloads",
+//     label: "Downloads",
+//   },
+//   {
+//     id: "documents",
+//     label: "Documents",
+//   },
+// ] as const;
 
 const FormSchema = z.object({
-  categories: z
-    .array(z.string())
-    .refine((value) => value.some((item) => item), {
-      message: "You have to select at least one category.",
-    }),
-  types: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one type.",
-  }),
+  categories: z.array(z.string()),
+  // .refine((value) => value.some((item) => item), {
+  //   message: "You have to select at least one category.",
+  // }),
+  types: z.array(z.string()),
+  // .refine((value) => value.some((item) => item), {
+  //   //some =array must contain at least one string that is not empty, null, undefined, etc.?"
+  //   message: "You have to select at least one type.",
+  // }),
 });
 
 interface FilterProps {
-  filterList: { categories: CategoryType[]; types: CategoryType[] };
+  categories: CategoryType[];
+  types: CategoryType[];
 }
-
-export default function ProductFilter({ filterList }: FilterProps) {
+interface ProductsFilterProps {
+  filterList: FilterProps;
+  selectedCategories: string[];
+  selectedTypes: string[];
+  onFilterChange: (categories: string[], types: string[]) => void;
+}
+export default function ProductFilter({
+  filterList,
+  selectedCategories,
+  selectedTypes,
+  onFilterChange,
+}: ProductsFilterProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      categories: [],
-      types: [],
+      categories: selectedCategories,
+      types: selectedTypes,
     },
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+    onFilterChange(data.categories, data.types);
   }
 
   return (
@@ -96,21 +107,23 @@ export default function ProductFilter({ filterList }: FilterProps) {
                       >
                         <FormControl>
                           <Checkbox
-                            className="border-black/30"
-                            checked={field.value?.includes(item.id)}
+                            checked={field.value?.includes(item.id.toString())}
                             onCheckedChange={(checked) => {
                               return checked
-                                ? field.onChange([...field.value, item.id])
+                                ? field.onChange([
+                                    ...field.value,
+                                    item.id.toString(),
+                                  ])
                                 : field.onChange(
                                     field.value?.filter(
-                                      (value) => value !== item.id
+                                      (value) => value !== item.id.toString()
                                     )
                                   );
                             }}
                           />
                         </FormControl>
                         <FormLabel className="text-sm font-normal">
-                          {item.label}
+                          {item.name}
                         </FormLabel>
                       </FormItem>
                     );
@@ -120,7 +133,7 @@ export default function ProductFilter({ filterList }: FilterProps) {
               <FormMessage />
             </FormItem>
           )}
-        />{" "}
+        />
         <FormField
           control={form.control}
           name="types"
@@ -142,21 +155,23 @@ export default function ProductFilter({ filterList }: FilterProps) {
                       >
                         <FormControl>
                           <Checkbox
-                            className="border-black/30"
-                            checked={field.value?.includes(item.id)}
+                            checked={field.value?.includes(item.id.toString())}
                             onCheckedChange={(checked) => {
                               return checked
-                                ? field.onChange([...field.value, item.id])
+                                ? field.onChange([
+                                    ...field.value,
+                                    item.id.toString(),
+                                  ])
                                 : field.onChange(
                                     field.value?.filter(
-                                      (value) => value !== item.id
+                                      (value) => value !== item.id.toString()
                                     )
                                   );
                             }}
                           />
                         </FormControl>
                         <FormLabel className="text-sm font-normal">
-                          {item.label}
+                          {item.name}
                         </FormLabel>
                       </FormItem>
                     );
@@ -167,11 +182,8 @@ export default function ProductFilter({ filterList }: FilterProps) {
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          variant={"outline"}
-          className="border-black/30 cursor-pointer"
-        >
+
+        <Button type="submit" variant="outline">
           Filter
         </Button>
       </form>

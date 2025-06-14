@@ -24,9 +24,9 @@ export const authorization = [
     console.log(userId);
 
     const user = await getUserById(userId);
-    checkUserIfNotExist(user);
+    await checkUserIfNotExist(user);
 
-    const authorisedAccess = authoriseByRoles(true, user!.role, "AUTHOR");
+    const authorisedAccess = await authoriseByRoles(true, user!.role, "AUTHOR");
     if (authorisedAccess) {
       info.content = "You have got accessed as an author";
     }

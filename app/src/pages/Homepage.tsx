@@ -1,13 +1,62 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import couch from "../data/images/couch.png";
 import { Button } from "../components/ui/button";
 import { CarouselCard } from "../components/products/CarouselCard";
-import { products } from "../data/products";
+// import { products } from "../data/products";
 import BlogCards from "../components/blogs/BlogCards";
-import { posts } from "../data/posts";
+
 import ProductCard from "../components/products/ProductCard";
+import type { ProductsType } from "../types";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { postQuery, productsQuery } from "../api/query";
 
 const Homepage = () => {
+  // const { productData, postData } = useLoaderData();
+
+  // const {
+  //   data: productData,
+  //   isError: isProductError,
+  //   error: productError,
+  //   isLoading: isProductLoading,
+  //   refetch: productRefetch,
+  // } = useQuery(productsQuery("?limit=8"));
+
+  // const {
+  //   data: postData,
+  //   isError: isPostError,
+  //   error: postError,
+  //   isLoading: isPostLoading,
+  //   refetch: postRefetch,
+  // } = useQuery(postQuery("?limit=3"));
+  // console.log(postData);
+  // if (isProductLoading && isPostLoading) {
+  //   return (
+  //     <p className="flex items-center justify-center h-screen text-2xl text-red-700 font-bold">
+  //       Loading.....
+  //     </p>
+  //   );
+  // }
+  // if (isPostError && isProductError) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen gap-10 flex-col p-4 border border-black/10 shadow-md">
+  //       <p className=" text-2xl text-red-700 font-bold">
+  //         {postError.message} & {productError.message}
+  //       </p>
+  //       <Button
+  //         variant={"secondary"}
+  //         onClick={() => {
+  //           productRefetch();
+  //           postRefetch();
+  //         }}
+  //       >
+  //         Try Again
+  //       </Button>
+  //     </div>
+  //   );
+  // }
+  //
+  const { data: productData } = useSuspenseQuery(productsQuery("?limit=8"));
+  const { data: postData } = useSuspenseQuery(postQuery("?limit=3"));
   const Title = ({
     title,
     herf,
@@ -29,9 +78,17 @@ const Homepage = () => {
       </div>
     );
   };
+  // console.log(postData);
+  // const sampleBlogs = posts.slice(0, 3);
+  // const posts = postData?.posts;
+  // const sampleProducts = products?.slice(0, 4);
+  // const Products = productData.products;
 
-  const sampleBlogs = posts.slice(0, 3);
-  const sampleProducts = products?.slice(0, 4);
+  const location = useLocation();
+  const filters = location.state?.filters;
+
+  const productsLink = `/products${filters ? `?${filters}` : ""}`;
+
   return (
     <section className="mx-auto max-w-[90%] my-10">
       <div className="flex  flex-col lg:flex-row  lg:justify-between  lg:gap-10 ">
@@ -62,20 +119,22 @@ const Homepage = () => {
         </div>
         <img src={couch} alt="Couch" className="lg:w-3/5" />
       </div>
-      <CarouselCard products={products} />
+      {productData && <CarouselCard products={productData.products} />}
       <Title
         title="Featured Products"
-        herf="/products"
+        herf={productsLink}
         linkText="View All Products"
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:px-0 gap-8">
-        {sampleProducts &&
-          sampleProducts.map((product) => (
-            <ProductCard product={product} key={product.id} />
-          ))}
+        {productData &&
+          productData.products
+            .slice(0, 4)
+            .map((product: ProductsType) => (
+              <ProductCard product={product} key={product.id} />
+            ))}
       </div>
       <Title title="Recent Blogs" herf="/blogs" linkText="View All Blogs" />
-      <BlogCards posts={sampleBlogs} />
+      {postData && <BlogCards posts={postData.posts} />}
     </section>
   );
 };

@@ -96,7 +96,7 @@ export const createProduct = [
       if (req.files && req.files.length > 0) {
         const originalFiles = req.files.map((file: any) => file.filename);
         console.log(originalFiles);
-        removeFiles(originalFiles, null);
+        await removeFiles(originalFiles, null);
       }
       return next(handleError(errors[0].msg, 400, errorCode.invalid)); //This next(error) skips all other routes/middlewares and jumps directly to your error-handling middleware:
     }
@@ -106,7 +106,7 @@ export const createProduct = [
         ? req.files.map((file: any) => file.filename)
         : null;
     console.log(productImg);
-    checkProductFileIfNotExist(productImg);
+    await checkProductFileIfNotExist(productImg);
     const {
       name,
       description,
@@ -211,7 +211,7 @@ export const updateProduct = [
       if (req.files && req.files.length > 0) {
         const originalFiles = req.files.map((file: any) => file.filename);
         console.log(originalFiles);
-        removeFiles(originalFiles, null);
+        await removeFiles(originalFiles, null);
       }
       return next(handleError(errors[0].msg, 400, errorCode.invalid)); //This next(error) skips all other routes/middlewares and jumps directly to your error-handling middleware:
     }
@@ -220,7 +220,7 @@ export const updateProduct = [
         ? req.files.map((file: any) => ({ path: file.filename }))
         : null;
 
-    checkFileIfNotExist(originalFiles);
+    await checkFileIfNotExist(originalFiles);
 
     const {
       productId,

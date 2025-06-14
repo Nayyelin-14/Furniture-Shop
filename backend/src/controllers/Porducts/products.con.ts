@@ -7,10 +7,13 @@ import { checkUserIfNotExist } from "../../utils/auth.utils";
 
 import { getOrSetCache } from "../../utils/chace";
 import {
+  getAllCatAndType,
   getAllProductListByPagi,
   getProductWithRealations,
 } from "../../services/product.service";
 import { checkIfProductExists } from "../../utils/check";
+import { addToFav, removeFromFav } from "../../services/users.service";
+import cacheQueue from "../../job/queues/cacheQueue";
 interface CustomUserReq extends Request {
   userId?: number;
 }
@@ -26,13 +29,13 @@ export const getSingleProduct = [
     console.log(productId);
     const userId = req.userId;
     const user = await getUserById(userId!);
-    checkUserIfNotExist(user);
+    await checkUserIfNotExist(user);
 
     const cacheKey = `products:${productId}`;
     const product = await getOrSetCache(cacheKey, async () => {
       return await getProductWithRealations(Number(productId));
     });
-    checkIfProductExists(product);
+    await checkIfProductExists(product);
 
     res.status(200).json({ productId, product });
   },
@@ -41,7 +44,7 @@ export const getSingleProduct = [
 export const getProductsWithPagi = [
   query("cursor", "Cursor number must be post id").isInt({ gt: 0 }).optional(),
   query("limit", "Limit number must be unsigned integer")
-    .isInt({ gt: 4 })
+    .isInt({ gt: 2 })
     .optional(),
   async (req: CustomUserReq, res: Response, next: NextFunction) => {
     const errors: any = validationResult(req).array({
@@ -56,21 +59,21 @@ export const getProductsWithPagi = [
     const limit = req.query.limit || 5;
     const userId = req.userId;
     const user = await getUserById(userId!);
-    checkUserIfNotExist(user);
-    const category = req.query.category;
-    const type = req.query.type;
-
+    await checkUserIfNotExist(user);
+    const categories = req.query.categories;
+    const types = req.query.types;
+    console.log("cat", categories, "type", types);
     let categoryList: number[] = [];
     let typeList: number[] = [];
-    if (category) {
-      categoryList = category
+    if (categories) {
+      categoryList = categories
         .toString()
         .split(",")
         .map((c) => Number(c))
         .filter((c) => c > 0);
     }
-    if (type) {
-      typeList = type
+    if (types) {
+      typeList = types
         .toString()
         .split(",")
         .map((t) => Number(t))
@@ -125,6 +128,62 @@ export const getProductsWithPagi = [
       products,
       hasNextPage,
       newCursor,
+    });
+  },
+];
+
+export const getCategoriresandTypes = async (
+  req: CustomUserReq,
+  res: Response,
+  next: NextFunction
+) => {
+  const userId = req.userId;
+  const user = await getUserById(userId!);
+  await checkUserIfNotExist(user);
+  const { categories, types } = await getAllCatAndType();
+  // if (!categories ) {
+  //   return next(handleError("Not Found", 404, errorCode.invalid));
+  // }
+  res.status(200).json({ categories, types });
+};
+
+export const toggleFavourite = [
+  body("productId", "Product ID is required").isInt({ gt: 0 }),
+  body("isFavourite", "Must not be empty").isBoolean(),
+  async (req: CustomUserReq, res: Response, next: NextFunction) => {
+    const errors: any = validationResult(req).array({
+      onlyFirstError: true,
+    });
+
+    if (errors.length > 0) {
+      return next(handleError(errors[0].msg, 400, errorCode.invalid)); //This next(error) skips all other routes/middlewares and jumps directly to your error-handling middleware:
+    }
+    const userId = req.userId;
+    const user = await getUserById(userId!);
+    await checkUserIfNotExist(user);
+    const { productId, isFavourite } = req.body;
+
+    if (isFavourite) {
+      await addToFav(Number(user!.id), Number(productId));
+    }
+    if (!isFavourite) {
+      await removeFromFav(Number(user!.id), Number(productId));
+    }
+    await cacheQueue.add(
+      "invalidate-product-cache",
+      {
+        pattern: "products:*",
+      },
+      {
+        jobId: `invalidate-${Date.now()}`,
+        priority: 1,
+      }
+    );
+
+    res.status(200).json({
+      message: isFavourite
+        ? "Successfully added to favourite"
+        : "Successfully removed from favourite",
     });
   },
 ];

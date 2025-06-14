@@ -1,6 +1,6 @@
 import { errorCode } from "../../config/errorCode";
 import { handleError } from "./handleError";
-export const checkUserExist = (user: any) => {
+export const checkUserExist = async (user: any) => {
   if (user) {
     throw handleError(
       "This phone number is already in use",
@@ -10,7 +10,7 @@ export const checkUserExist = (user: any) => {
   }
 };
 
-export const checkOtpErrorInOneDay = (
+export const checkOtpErrorInOneDay = async (
   isSameDate: boolean,
   errorCount: number
 ) => {
@@ -23,7 +23,7 @@ export const checkOtpErrorInOneDay = (
   }
 };
 
-export const checkOtpExist = (otp: any) => {
+export const checkOtpExist = async (otp: any) => {
   if (!otp) {
     throw handleError(
       "OTP is wrong for 5 times. Try again after 24 hours",
@@ -43,7 +43,7 @@ export const checkUserIfNotExist = async (user: any) => {
   }
 };
 
-export const authoriseByRoles = (
+export const authoriseByRoles = async (
   permission: boolean,
   userRole: string,
   ...roles: string[]
@@ -56,12 +56,12 @@ export const authoriseByRoles = (
   return grantAcess;
 };
 
-export const checkFileIfNotExist = (file: any) => {
+export const checkFileIfNotExist = async (file: any) => {
   if (!file) {
     throw handleError("Invalid file", 400, errorCode.invalid);
   }
 };
-export const checkProductFileIfNotExist = (files: any) => {
+export const checkProductFileIfNotExist = async (files: any) => {
   if (!Array.isArray(files) || files.length === 0) {
     throw handleError("Invalid file(s)", 400, errorCode.invalid);
   }

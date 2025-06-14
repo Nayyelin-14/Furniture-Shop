@@ -40,6 +40,10 @@ app.use(compression({}));
 app.use(rateLimiter);
 app.use(helmet());
 app.set("trust proxy", true);
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Resource-Policy", "same-site");
+  next();
+});
 i18next
   .use(Backend)
   .use(middleware.LanguageDetector)
@@ -67,6 +71,7 @@ app.use(
 //for all routes
 app.use(routes);
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+  console.log(error);
   const status = error.status || 404;
   const message = error.message || "Something went wrong";
   const errorCode = error.code || "Error_code";

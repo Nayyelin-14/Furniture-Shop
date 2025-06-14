@@ -60,7 +60,7 @@ model User {
   updatedAt DateTime @updatedAt
   posts Post[]
   orders Order[]
-
+products Product[]// for fav product
 }
 model Post {
   id        Int      @id @default(autoincrement())
@@ -107,9 +107,10 @@ model Product {
   orders ProductsOnOrder[]
  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- images Image[]
+  images Image[]
   productTags ProductTag[]
 
+users User[] // for fav product
 }
 model PostTag{
   id Int @id @default(autoincrement())

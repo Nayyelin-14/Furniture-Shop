@@ -25,7 +25,7 @@ export const getSinglePost = [
     const { postId } = req.params;
     const userId = req.userId;
     const user = await getUserById(userId!);
-    checkUserIfNotExist(user);
+    await checkUserIfNotExist(user);
 
     const cacheKey = `posts:${postId}`;
     const post = await getOrSetCache(cacheKey, async () => {
@@ -72,7 +72,7 @@ export const getAllPostsByPagination = [
     }
     const userId = req.userId;
     const user = await getUserById(userId!);
-    checkUserIfNotExist(user);
+    await checkUserIfNotExist(user);
     const page = req.query.page || 1;
     const limit = req.query.limit || 5;
 
@@ -136,7 +136,7 @@ export const getAllPostsByPagination = [
 export const getAllPostsByInfinitePagination = [
   query("cursor", "Cursor number must be post id").isInt({ gt: 0 }).optional(),
   query("limit", "Limit number must be unsigned integer")
-    .isInt({ gt: 4 })
+    .isInt({ gt: 2 })
     .optional(),
   async (req: CustomUserReq, res: Response, next: NextFunction) => {
     const errors: any = validationResult(req).array({ onlyFirstError: true });
@@ -146,7 +146,7 @@ export const getAllPostsByInfinitePagination = [
     }
     const userId = req.userId;
     const user = await getUserById(userId!);
-    checkUserIfNotExist(user);
+    await checkUserIfNotExist(user);
     const lastCursor = req.query.cursor;
     console.log("cursor ", lastCursor);
     const limit = req.query.limit || 5;
@@ -167,7 +167,7 @@ export const getAllPostsByInfinitePagination = [
         modifiedImage: true,
       },
       orderBy: {
-        id: "asc",
+        id: "desc",
       },
     };
 

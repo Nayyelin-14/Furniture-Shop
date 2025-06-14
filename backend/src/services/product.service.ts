@@ -139,3 +139,10 @@ export const getProductWithRealations = async (productId: number) => {
 export const getAllProductListByPagi = async (options: any) => {
   return await prisma.product.findMany(options);
 };
+
+export const getAllCatAndType = async () => {
+  const categories = await prisma.category.findMany();
+  const types = await prisma.type.findMany();
+
+  return { categories, types };
+};
