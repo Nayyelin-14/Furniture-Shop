@@ -33,7 +33,7 @@ export const getSingleProduct = [
 
     const cacheKey = `products:${productId}`;
     const product = await getOrSetCache(cacheKey, async () => {
-      return await getProductWithRealations(Number(productId));
+      return await getProductWithRealations(Number(productId), Number(userId));
     });
     await checkIfProductExists(product);
 
@@ -162,12 +162,14 @@ export const toggleFavourite = [
     const user = await getUserById(userId!);
     await checkUserIfNotExist(user);
     const { productId, isFavourite } = req.body;
-
+    console.log(isFavourite);
     if (isFavourite) {
       await addToFav(Number(user!.id), Number(productId));
+      console.log("i did this");
     }
     if (!isFavourite) {
       await removeFromFav(Number(user!.id), Number(productId));
+      console.log("i did remove");
     }
     await cacheQueue.add(
       "invalidate-product-cache",

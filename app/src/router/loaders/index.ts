@@ -98,4 +98,12 @@ export const singleProductLoader = async ({ params }: LoaderFunctionArgs) => {
   );
 
   return { productId: params.productId };
+
+  //   productId ကို URL မှာ /products/:productId ဆိုပြီး dynamic route parameter အနေနဲ့ ရယူတယ်။
+
+  // React Router က loader function ကို render မဖြစ်ခင် ခေါ်ပြီး params တွေကို argument အနေနဲ့ပေးတယ်။
+
+  // ဒါကြောင့် params.productId ဟာ URL ကနေ ပြန်ရတာဖြစ်တယ်။
+
+  // နောက်ဆုံးမှာ return { productId } လုပ်ထားတဲ့အတွက် UI မှာ useLoaderData() ကနေ ရယူနိုင်တယ်။
 };

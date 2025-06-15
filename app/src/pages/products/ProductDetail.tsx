@@ -1,4 +1,4 @@
-import { Link, useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 // import { products } from "../../data/products";
 import { Button } from "../../components/ui/button";
 import { ScrollArea, ScrollBar } from "../../components/ui/scroll-area";
@@ -33,7 +33,7 @@ const ProductDetail = () => {
   const { data: productDetail } = useSuspenseQuery(
     singleProductQuery(Number(productId))
   );
-  console.log(productDatas, productDetail);
+
   const img_path = import.meta.env.VITE_IMG_URL;
 
   const navigate = useNavigate();
@@ -102,6 +102,7 @@ const ProductDetail = () => {
             <AddToFav
               productid={Number(productId)}
               rating={Number(productDetail?.product.rating)}
+              isFavouriteorNot={productDetail?.product.users.length === 1}
             />
           </div>
           <AddtoCartForm

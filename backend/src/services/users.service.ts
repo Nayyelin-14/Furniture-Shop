@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const addToFav = (userId: number, productId: number) => {
+export const addToFav = async (userId: number, productId: number) => {
   return prisma.user.update({
     where: { id: userId },
     data: {
@@ -16,7 +16,7 @@ export const addToFav = (userId: number, productId: number) => {
     },
   });
 };
-export const removeFromFav = (userId: number, productId: number) => {
+export const removeFromFav = async (userId: number, productId: number) => {
   return prisma.user.update({
     where: { id: userId },
     data: {

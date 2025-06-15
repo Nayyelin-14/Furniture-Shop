@@ -2,6 +2,7 @@ import { AxiosError } from "axios";
 import { redirect, type ActionFunctionArgs } from "react-router-dom";
 import API, { authAPI } from "../../api";
 import useAuthStore, { Status } from "../../store/authStore";
+import { queryClient } from "../../api/query";
 
 export const loginAction = async ({ request }: ActionFunctionArgs) => {
   const formdata = await request.formData();
@@ -130,6 +131,42 @@ export const ConfirmPwdAction = async ({ request }: ActionFunctionArgs) => {
     console.log(error);
     if (error instanceof AxiosError) {
       return error.response?.data || { error: "Registeration failed" };
+    } else {
+      throw error;
+    }
+  }
+};
+
+export const FavProductAction = async ({
+  request,
+  params,
+}: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  if (!params.productId) {
+    throw new Error("Product Id is not provided");
+  }
+
+  const data = {
+    productId: Number(params.productId),
+    isFavourite: formData.get("isFavourite") === "true", // true string so yin true boolean
+  };
+
+  try {
+    const response = await API.patch("users/toggle-fav", data);
+
+    if (response.status !== 200) {
+      return { error: response.data || "Setting favourite failed" };
+    }
+
+    await queryClient.invalidateQueries({
+      queryKey: ["product", "detail", params.productId],
+    });
+
+    return null;
+  } catch (error) {
+    console.log(error);
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Setting favourite failed" };
     } else {
       throw error;
     }

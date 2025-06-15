@@ -5,6 +5,7 @@ import {
   DashboardIcon,
   GearIcon,
   ExitIcon,
+  HeartFilledIcon,
 } from "@radix-ui/react-icons";
 import {
   ArrowLeft,
@@ -51,6 +52,7 @@ export const Icons = {
   settingIcon: GearIcon,
   cartIcon: ShoppingCartIcon,
   exitIcon: ExitIcon,
+  heartFillIcon: HeartFilledIcon,
   arrow: (props: IconProps) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"

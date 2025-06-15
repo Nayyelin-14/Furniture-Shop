@@ -17,6 +17,7 @@ import Login from "./pages/Auth/Login";
 
 import {
   ConfirmPwdAction,
+  FavProductAction,
   loginAction,
   logoutAction,
   OTPAction,
@@ -112,7 +113,7 @@ const router = createBrowserRouter([
               </Suspense>
             ),
             loader: singleProductLoader,
-            errorElement: <div>Something wrong</div>,
+            action: FavProductAction,
           },
         ],
       },

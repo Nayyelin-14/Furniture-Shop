@@ -29,6 +29,7 @@ export type ProductsType = {
   rating: number;
   inventory: number;
   status: string;
+  users: [];
 };
 export type PostsType = {
   id: string;

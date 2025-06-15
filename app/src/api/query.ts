@@ -108,6 +108,6 @@ const singleProduct = async (productId: number) => {
 };
 
 export const singleProductQuery = (productId: number) => ({
-  queryKey: ["product", productId],
+  queryKey: ["product", "detail", productId],
   queryFn: () => singleProduct(productId),
 });
