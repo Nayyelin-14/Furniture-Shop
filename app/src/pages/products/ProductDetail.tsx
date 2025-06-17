@@ -24,6 +24,7 @@ import {
 import { productsQuery, singleProductQuery } from "../../api/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { ProductsType, Images } from "../../types";
+import { useCartStore } from "../../store/cartStore";
 
 const ProductDetail = () => {
   // const { productid } = useParams();
@@ -37,6 +38,18 @@ const ProductDetail = () => {
   const img_path = import.meta.env.VITE_IMG_URL;
 
   const navigate = useNavigate();
+
+  const { addItem } = useCartStore();
+
+  const handleUpdateCart = (quantity: number) => {
+    addItem({
+      id: productDetail.product.id,
+      name: productDetail.product.name,
+      image: productDetail.product.images[0].path,
+      quantity,
+      price: productDetail.product.price,
+    });
+  };
   return (
     <div className="w-[90%] mx-auto my-10">
       <Button
@@ -106,7 +119,9 @@ const ProductDetail = () => {
             />
           </div>
           <AddtoCartForm
-            isStock={productDetail?.product.status === "active" ? true : false}
+            isStock={productDetail?.product.status === "ACTIVE" ? true : false}
+            onUpdateCart={handleUpdateCart}
+            productId={productDetail.product.id}
           />
           <Separator />
           <Accordion

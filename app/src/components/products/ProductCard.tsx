@@ -13,12 +13,24 @@ import {
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import { Icons } from "../icons";
 import { cn, formatPrice } from "../../lib/utils";
+import { useCartStore } from "../../store/cartStore";
 
 interface ProductsProps extends React.HTMLAttributes<HTMLDivElement> {
   product: ProductsType;
 }
 const img_path = import.meta.env.VITE_IMG_URL;
 const ProductCard = ({ product, className }: ProductsProps) => {
+  const { carts, addItem } = useCartStore();
+  const existedCartItem = carts.find((item) => item.id === product.id);
+  const addToCart = () => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0].path,
+      quantity: 1,
+    });
+  };
   return (
     <Card
       className={cn(
@@ -51,7 +63,7 @@ const ProductCard = ({ product, className }: ProductsProps) => {
         </CardContent>
       </Link>
       <CardFooter>
-        {product.status === "sold" ? (
+        {product.status === "INACTIVE" ? (
           <>
             <Button
               variant="secondary"
@@ -70,9 +82,11 @@ const ProductCard = ({ product, className }: ProductsProps) => {
               size={"sm"}
               aria-label="Add to Cart"
               className="h-8 w-full rounded-sm cursor-pointer bg-[#3b5d50]  text-white font-medium"
+              onClick={addToCart}
+              disabled={!!existedCartItem}
             >
-              <Icons.plus />
-              Add To Cart
+              {existedCartItem && <Icons.plus />}
+              {existedCartItem ? "Added Item" : "Add To Cart"}
             </Button>
           </>
         )}

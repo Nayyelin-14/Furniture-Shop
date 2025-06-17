@@ -15,32 +15,63 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Icons } from "../icons";
 import { cn } from "../../lib/utils";
+import { useCartStore } from "../../store/cartStore";
+import { useEffect } from "react";
 const cartSchema = z.object({
   quantity: z
-    .number()
-    .min(1)
-    .refine((val) => val >= 1, {
-      message: "Quantity must be at least 1",
-    }),
+    .string()
+    .min(1, "Quantity must be at least 1")
+    .max(4, "Too many items")
+    .regex(/^\d+$/, "Must be a number"),
 });
-
 interface isStockProps {
   isStock: boolean;
+  onUpdateCart: (quantity: number) => void;
+  productId: number;
 }
-export function AddtoCartForm({ isStock }: isStockProps) {
+export function AddtoCartForm({
+  isStock,
+  onUpdateCart,
+  productId,
+}: isStockProps) {
   // ...
+  const existedCartItem = useCartStore((state) =>
+    state.carts.find((item) => item.id === productId)
+  );
 
   const form = useForm<z.infer<typeof cartSchema>>({
     resolver: zodResolver(cartSchema),
     defaultValues: {
-      quantity: 1,
+      quantity: existedCartItem ? existedCartItem.quantity.toString() : "1",
     },
   });
+
+  const { setValue, watch } = form;
+  const currentQuantity = Number(watch("quantity"));
+
+  useEffect(() => {
+    if (existedCartItem) {
+      setValue("quantity", existedCartItem.quantity.toString(), {
+        shouldValidate: true,
+      });
+    }
+  }, [existedCartItem, setValue]);
+
+  const quanIncrease = () => {
+    const updateQuantity = Math.min(currentQuantity + 1, 9999);
+    setValue("quantity", updateQuantity.toString(), { shouldValidate: true });
+  };
+
+  const quanDecrease = () => {
+    const updateQuantity = Math.max(currentQuantity - 1, 0);
+    setValue("quantity", updateQuantity.toString(), { shouldValidate: true });
+  };
+
   function onSubmit(values: z.infer<typeof cartSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-
     console.log(values);
+    onUpdateCart(Number(values.quantity));
     toast.success("Added to cart successfully");
   }
   return (
@@ -56,6 +87,8 @@ export function AddtoCartForm({ isStock }: isStockProps) {
             variant={"outline"}
             size={"icon"}
             className="size-8 shrink-0 rounded-r-none border border-black/40 cursor-pointer"
+            onClick={quanDecrease}
+            disabled={currentQuantity <= 1}
           >
             <Icons.minus className="size-3" aria-hidden="true" />
             <span className="sr-only">Remove One Item</span>
@@ -65,7 +98,9 @@ export function AddtoCartForm({ isStock }: isStockProps) {
             name="quantity"
             render={({ field }) => (
               <FormItem className="space-y-0">
-                <FormLabel className="sr-only">Quantity</FormLabel>
+                <FormLabel className="sr-only">
+                  {existedCartItem ? existedCartItem.quantity : 1}
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -73,7 +108,7 @@ export function AddtoCartForm({ isStock }: isStockProps) {
                     min={0}
                     placeholder="example@gmail.com"
                     {...field}
-                    className="h-8 w-16 rounded-none border-x-0 border-black/40"
+                    className="h-8 w-16 rounded-none border-x-0 border-black/40 text-center [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </FormControl>
 
@@ -86,6 +121,8 @@ export function AddtoCartForm({ isStock }: isStockProps) {
             variant={"outline"}
             size={"icon"}
             className="size-8 shrink-0 rounded-l-none border border-black/40 cursor-pointer"
+            onClick={quanIncrease}
+            disabled={currentQuantity >= 9999}
           >
             <Icons.plus className="size-3" aria-hidden="true" />
             <span className="sr-only">Plus One Item</span>
@@ -97,7 +134,7 @@ export function AddtoCartForm({ isStock }: isStockProps) {
             aria-label="Buy Now"
             size={"sm"}
             className={cn(
-              `bg-[#3b5d50] w-full font-bold cursor-pointer`,
+              `bg-[#3c715d] w-full font-bold cursor-pointer`,
               !isStock && "bg-slate-500"
             )}
           >
@@ -108,9 +145,9 @@ export function AddtoCartForm({ isStock }: isStockProps) {
             aria-label="Add To Cart"
             size={"sm"}
             variant={isStock ? "outline" : "default"}
-            className="w-full font-bold cursor-pointer border border-black/20"
+            className={cn(`w-full font-semibold cursor-pointer`)}
           >
-            Add To Cart
+            {existedCartItem ? "Update Cart" : "Add To Cart"}
           </Button>
         </div>
       </form>

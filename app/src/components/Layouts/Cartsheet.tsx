@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { cartItems } from "../../data/cart";
+
 import { Icons } from "../icons";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -17,10 +17,14 @@ import {
 import { ScrollArea } from "../ui/scroll-area";
 import { formatPrice } from "../../lib/utils";
 import CartItem from "../carts/CartItem";
+import { useCartStore } from "../../store/cartStore";
 
 export function Cartsheet() {
-  const itemCount = 4;
-  const amountTotal = 130;
+  const itemCount = useCartStore((state) => state.getTotalItems());
+  const amountTotal = useCartStore((state) => state.getTotalPrice());
+  const cartItems = useCartStore((state) => state.carts);
+  // const itemCount = 4;
+  // const amountTotal = 130;
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -30,15 +34,17 @@ export function Cartsheet() {
           size={"icon"}
         >
           <Icons.cartIcon aria-hidden="true" />
-          <Badge className="absolute size-5 -right-2 -top-2 rounded-full">
-            {itemCount}
-          </Badge>
+          {itemCount > 0 && (
+            <Badge className="absolute size-5 -right-2 -top-2 rounded-full">
+              {itemCount}
+            </Badge>
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader className="mt-3">
           <SheetTitle className="text-center text-2xl font-medium">
-            Cart - {itemCount}
+            {itemCount > 0 ? `Cart - ${itemCount}` : "Empty cart"}
           </SheetTitle>
         </SheetHeader>
         <Separator className="my-[-10px]" />
@@ -47,9 +53,7 @@ export function Cartsheet() {
             <ScrollArea className="max-h-[60vh]  px-4 rounded-md  ">
               {cartItems &&
                 cartItems.map((item) => (
-                  <div className="" key={item.id}>
-                    <CartItem cartItem={item} />
-                  </div>
+                  <CartItem cartItem={item} key={item.id} />
                 ))}
             </ScrollArea>
             <Separator />
