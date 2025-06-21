@@ -12,6 +12,7 @@ export const loginAction = async ({ request }: ActionFunctionArgs) => {
   // };
 
   const authData = Object.fromEntries(formdata);
+  const authStore = useAuthStore.getState();
   try {
     const response = await authAPI.post("auth/login", authData);
     // const response = await fetch(import.meta.env.VITE_API_URL + "login", {
@@ -31,6 +32,12 @@ export const loginAction = async ({ request }: ActionFunctionArgs) => {
     }
 
     const redirectTo = new URL(request.url).searchParams.get("redirect") || "/";
+    console.log(response.data.user?.phone);
+    authStore.setAuth(
+      response.data.user?.phone,
+      response.data.user?.randomToken,
+      Status.none
+    );
     return redirect(redirectTo); // ✅ this was missing
   } catch (error) {
     console.log(error);
@@ -167,6 +174,126 @@ export const FavProductAction = async ({
     console.log(error);
     if (error instanceof AxiosError) {
       return error.response?.data || { error: "Setting favourite failed" };
+    } else {
+      throw error;
+    }
+  }
+};
+
+export const resetPasswordAction = async ({ request }: ActionFunctionArgs) => {
+  const authStore = useAuthStore.getState(); //getstate take state or initialState
+  const data = await request.formData();
+  const resetData = Object.fromEntries(data);
+  try {
+    const response = await API.post("auth/forget-password", resetData);
+    console.log(response);
+    if (response.status !== 200) {
+      return { error: response.data || "Resetting password failed" };
+    }
+
+    authStore.setAuth(response.data.phone, response.data.token, Status.verify);
+    return redirect("/reset-password/verify-otp");
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Resetting password failed" };
+    } else {
+      throw error;
+    }
+  }
+};
+
+export const NewPwdOTPAction = async ({ request }: ActionFunctionArgs) => {
+  const authStore = useAuthStore.getState(); //getstate take state or initialState
+  const data = await request.formData();
+  const OTPData = {
+    phone: authStore?.phone,
+    token: authStore?.token,
+    otp: data.get("otp"),
+  };
+  console.log(OTPData);
+  try {
+    const response = await API.post("auth/verify", OTPData);
+    console.log(response);
+    if (response.status !== 200) {
+      return { error: response.data || "Verification OTP failed" };
+    }
+    authStore.setAuth(response.data.phone, response.data.token, Status.reset);
+    return redirect("/reset-password/new-password");
+    //
+  } catch (error) {
+    console.log(error);
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Verification OTP Failed" };
+    } else {
+      throw error;
+    }
+  }
+};
+
+export const NewPwdAction = async ({ request }: ActionFunctionArgs) => {
+  const authStore = useAuthStore.getState(); //getstate take state or initialState
+  const data = await request.formData();
+  const ConfirmData = {
+    phone: authStore?.phone,
+    token: authStore?.token,
+    password: data.get("password"),
+  };
+
+  try {
+    const response = await API.post("auth/reset-password", ConfirmData);
+
+    if (response.status !== 201) {
+      return { error: response.data || "Resetting password failed" };
+    }
+    authStore.clearAuth();
+    return redirect("/");
+    //
+  } catch (error) {
+    console.log(error);
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Resetting password failed" };
+    } else {
+      throw error;
+    }
+  }
+};
+export const changePwdConfirmAction = async () => {
+  const authStore = useAuthStore.getState(); //getstate take state or initialState
+
+  authStore.status = Status.change;
+
+  return redirect("/change-password");
+};
+
+export const ChangeNewPwdAction = async ({ request }: ActionFunctionArgs) => {
+  const authStore = useAuthStore.getState(); //getstate take state or initialState
+  const data = await request.formData();
+  console.log(authStore);
+  const ConfirmData = {
+    phone: authStore?.phone,
+    token: authStore?.token,
+    newPassword: data.get("newPassword"),
+    confirmNewPassword: data.get("confirmNewPassword"),
+  };
+
+  try {
+    const response = await authAPI.post("auth/change-password", ConfirmData);
+
+    if (response.status !== 200) {
+      return { error: response.data || "Changing password failed" };
+    }
+    authStore.setAuth(
+      response?.data?.user.phone,
+      response?.data?.user.randomToken,
+      Status.none
+    );
+
+    return response?.data;
+    //
+  } catch (error) {
+
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Resetting password failed" };
     } else {
       throw error;
     }

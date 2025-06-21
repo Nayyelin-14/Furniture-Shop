@@ -16,19 +16,27 @@ import ProductLayout from "./pages/products/ProductLayout";
 import Login from "./pages/Auth/Login";
 
 import {
+  ChangeNewPwdAction,
+  changePwdConfirmAction,
   ConfirmPwdAction,
   FavProductAction,
   loginAction,
   logoutAction,
+  NewPwdAction,
+  NewPwdOTPAction,
   OTPAction,
   registerAction,
+  resetPasswordAction,
 } from "./router/actions";
 import {
   authCheckLoader,
+  ChangePasswordLoader,
   ConfirmPwdCheckLoader,
   GetProductsWithFilers,
   HomeLoader,
   InfiniteBlogsLoader,
+  NewPwdCheckLoader,
+  NewPwdOtpCheckLoader,
   OtpCheckLoader,
   SinglePostLoader,
   singleProductLoader,
@@ -37,6 +45,10 @@ import AuthRootLayout from "./pages/Auth/AuthRootLayout";
 import SingUpPage from "./pages/Auth/SignUp";
 import OtpPage from "./pages/Auth/OtpPage";
 import ConfirmPwdPage from "./pages/Auth/ConfirmPwd";
+import ResetPage from "./pages/Auth/ResetPage";
+import VerifyOtpPage from "./pages/Auth/VerifyOtpPage";
+import NewPwdPage from "./pages/Auth/NewPwdPage";
+import ChangePwd from "./pages/Auth/ChangePwd";
 
 const SusepnseFallback = () => (
   <div className="text-center h-screen">Loading</div>
@@ -44,8 +56,9 @@ const SusepnseFallback = () => (
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout />,
     errorElement: <NotFound />,
+    element: <RootLayout />,
+
     children: [
       {
         index: true,
@@ -181,6 +194,57 @@ const router = createBrowserRouter([
     loader: () => {
       return redirect("/");
     },
+  },
+  {
+    path: "/reset-password",
+    element: <AuthRootLayout />,
+    loader: authCheckLoader,
+    children: [
+      {
+        index: true,
+        element: (
+          <Suspense fallback={<SusepnseFallback />}>
+            <ResetPage />
+          </Suspense>
+        ),
+
+        action: resetPasswordAction,
+      },
+      {
+        path: "verify-otp",
+        element: (
+          <Suspense fallback={<SusepnseFallback />}>
+            <VerifyOtpPage />
+          </Suspense>
+        ),
+        loader: NewPwdOtpCheckLoader,
+        action: NewPwdOTPAction,
+      },
+      {
+        path: "new-password",
+        element: (
+          <Suspense fallback={<SusepnseFallback />}>
+            <NewPwdPage />
+          </Suspense>
+        ),
+        loader: NewPwdCheckLoader,
+        action: NewPwdAction,
+      },
+    ],
+  },
+  {
+    path: "/change-password-confirm",
+    action: changePwdConfirmAction,
+  },
+  {
+    path: "/change-password",
+    element: (
+      <Suspense fallback={<SusepnseFallback />}>
+        <ChangePwd />
+      </Suspense>
+    ),
+    loader: ChangePasswordLoader,
+    action: ChangeNewPwdAction,
   },
 ]);
 

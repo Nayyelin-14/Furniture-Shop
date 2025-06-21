@@ -85,9 +85,9 @@ const Homepage = () => {
   // const Products = productData.products;
 
   const location = useLocation();
-  const filters = location.state?.filters;
-
-  const productsLink = `/products${filters ? `?${filters}` : ""}`;
+  const keys = location.state?.keys;
+  console.log(location);
+  const productsLink = `/products${keys ? `?${keys}` : ""}`;
 
   return (
     <section className="mx-auto max-w-[90%] my-10">

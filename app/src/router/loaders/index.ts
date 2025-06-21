@@ -37,8 +37,11 @@ export const authCheckLoader = async () => {
   try {
     const response = await authAPI.get("auth/auth-check");
     if (response.status !== 200) {
+      console.log("unauthorized user");
+
       return null;
     }
+    console.log("Logged in user");
     return redirect("/");
   } catch (error) {
     console.log("Error", error);
@@ -106,4 +109,32 @@ export const singleProductLoader = async ({ params }: LoaderFunctionArgs) => {
   // ဒါကြောင့် params.productId ဟာ URL ကနေ ပြန်ရတာဖြစ်တယ်။
 
   // နောက်ဆုံးမှာ return { productId } လုပ်ထားတဲ့အတွက် UI မှာ useLoaderData() ကနေ ရယူနိုင်တယ်။
+};
+
+//for reset new pass
+export const NewPwdOtpCheckLoader = async () => {
+  const authStore = useAuthStore.getState();
+
+  if (authStore && authStore.status !== Status.verify) {
+    return redirect("/reset-password");
+  }
+  return null;
+};
+
+export const NewPwdCheckLoader = async () => {
+  const authStore = useAuthStore.getState();
+
+  if (authStore && authStore.status !== Status.reset) {
+    return redirect("/reset-password");
+  }
+  return null;
+};
+
+export const ChangePasswordLoader = async () => {
+  const authStore = useAuthStore.getState();
+
+  if (!authStore || authStore.status !== Status.change) {
+    return redirect("/");
+  }
+  return null;
 };

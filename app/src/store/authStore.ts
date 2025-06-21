@@ -7,6 +7,7 @@ export enum Status {
   verify = "verify",
   reset = "reset",
   none = "none",
+  change = "change",
 }
 
 type State = {

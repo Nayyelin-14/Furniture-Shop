@@ -1,5 +1,3 @@
-import Header from "../components/Layouts/Header";
-import Footer from "../components/Layouts/Footer";
 import {
   Card,
   CardDescription,
@@ -14,7 +12,6 @@ import { Icons } from "../components/icons";
 const NotFound = () => {
   return (
     <div className=" flex flex-col min-h-screen over-hidden">
-      <Header />
       <main className="flex items-center mx-auto flex-1 my-32 lg:my-0 ">
         {/* flex-1: Makes an element grow to fill the remaining space inside a flex
         container. */}
@@ -37,8 +34,6 @@ const NotFound = () => {
           </CardFooter>
         </Card>
       </main>
-
-      <Footer />
     </div>
   );
 };

@@ -15,7 +15,7 @@ import {
   checkUserIfNotExist,
 } from "../../utils/auth.utils";
 import { generateOTP, generateToken } from "../../utils/generateOtp";
-import bcrypt from "bcrypt";
+import bcrypt, { genSalt } from "bcrypt";
 import moment from "moment";
 import { handleError } from "../../utils/handleError";
 
@@ -291,6 +291,152 @@ export const resetPassowrd = [
       .json({
         message: "Successfully updated password",
         userId: updatedUser!.id,
+      });
+  },
+];
+
+export const changeNewPassword = [
+  body("phone", "Invalid Phone Number")
+    .trim()
+    .notEmpty()
+    .matches(/^[0-9]+$/)
+    .isLength({ min: 5, max: 12 })
+    .withMessage("Invalid Phone Number"),
+  body("confirmNewPassword", "Invalid Credentials")
+    .trim()
+    .notEmpty()
+    .matches(/^[0-9]+$/)
+    .isLength({ min: 8, max: 8 }),
+  body("newPassword", "Invalid new password")
+    .trim()
+    .notEmpty()
+    .matches(/^[0-9]+$/)
+    .isLength({ min: 8, max: 8 }),
+  body("token", "Invalid token").trim().notEmpty(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors: any = validationResult(req).array({
+      onlyFirstError: true,
+    });
+
+    if (errors.length > 0) {
+      const error: any = new Error(errors[0].msg);
+      error.status = 400;
+      error.code = errorCode.invalid;
+      return next(error); //This next(error) skips all other routes/middlewares and jumps directly to your error-handling middleware:
+    }
+    let phone = req.body.phone;
+    if (phone.slice(0, 2) === "09") {
+      phone = phone.substring(2, phone.length);
+    }
+    const { token, confirmNewPassword, newPassword } = req.body;
+    console.log(token);
+    const user = await getUserByPhone(phone);
+    await checkUserIfNotExist(user);
+
+    if (user?.status === "FREEZE") {
+      return next(
+        handleError(
+          "Your account has been locked. Try again later",
+          403,
+          errorCode.accountFreeze
+        )
+      );
+    }
+    if (user!.randomToken !== token) {
+      //if token is wrong , error and can't be verify again
+      const errorData = {
+        errorLoginCount: 3,
+        status: "FREEZE",
+      };
+      await updateUser(errorData, user!.id);
+      const error: any = new Error("Invalid Token");
+      error.status = 400;
+      error.code = "Error_Invalid";
+      return next(error);
+    }
+
+    const isMatchPassword = confirmNewPassword === newPassword;
+
+    const lastVerifyDate = new Date(user!.updatedAt)
+      .toISOString()
+      .split("T")[0];
+    const currentDate = new Date().toISOString().split("T")[0];
+
+    const isSameDate = lastVerifyDate === currentDate;
+    if (!isMatchPassword) {
+      if (!isSameDate) {
+        const userData = {
+          errorLoginCount: 1,
+        };
+        await updateUser(userData, user!.id);
+      } else {
+        if (user!.errorLoginCount >= 3) {
+          const userDataToFreeze = {
+            status: "FREEZE",
+          };
+          await updateUser(userDataToFreeze, user!.id);
+        } else {
+          const userData = {
+            errorLoginCount: {
+              increment: 1,
+            },
+          };
+          await updateUser(userData, user!.id);
+        }
+      }
+
+      const error: any = new Error("Invalid Credentials.Try Again");
+      error.status = 401;
+      error.code = errorCode.invalid;
+      return next(
+        handleError("Invalid Credentials.Try Again", 401, errorCode.invalid)
+      );
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedNewPwd = await bcrypt.hash(confirmNewPassword, salt);
+
+    const accessTokenPayload = { id: user!.id };
+    const refreshTokenPayload = { id: user!.id, phone: user!.phone };
+
+    const generateAccessToken = jwt.sign(
+      accessTokenPayload,
+      process.env.ACCESS_TOKEN_SECRET!,
+      { expiresIn: 60 * 15 }
+    );
+
+    const generateRefreshToken = jwt.sign(
+      refreshTokenPayload,
+      process.env.REFRESH_TOKEN_SECRET!,
+      { expiresIn: "30d" }
+    );
+    const updateUserData = {
+      randomToken: generateRefreshToken,
+      errorLoginCount: 0,
+      password: hashedNewPwd,
+    };
+    const updatedUser = await updateUser(updateUserData, user!.id);
+
+    const option: CookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    };
+
+    res
+      .cookie("accessToken", generateAccessToken, {
+        ...option,
+        maxAge: 15 * 60 * 1000, // 15 minutes
+      })
+      .cookie("refreshToken", generateRefreshToken, {
+        ...option,
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      })
+      .status(200)
+      .json({
+        isSuccess: true,
+        message: "Successfully change to new password",
+        user: updatedUser,
       });
   },
 ];

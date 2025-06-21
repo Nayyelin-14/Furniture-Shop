@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useLocation, useNavigate } from "react-router-dom";
 // import { products } from "../../data/products";
 import { Button } from "../../components/ui/button";
 import { ScrollArea, ScrollBar } from "../../components/ui/scroll-area";
@@ -25,6 +25,7 @@ import { productsQuery, singleProductQuery } from "../../api/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { ProductsType, Images } from "../../types";
 import { useCartStore } from "../../store/cartStore";
+import useAuthStore from "../../store/authStore";
 
 const ProductDetail = () => {
   // const { productid } = useParams();
@@ -38,7 +39,8 @@ const ProductDetail = () => {
   const img_path = import.meta.env.VITE_IMG_URL;
 
   const navigate = useNavigate();
-
+  const auth = useAuthStore();
+  console.log("auth store", auth);
   const { addItem } = useCartStore();
 
   const handleUpdateCart = (quantity: number) => {
@@ -50,13 +52,18 @@ const ProductDetail = () => {
       price: productDetail.product.price,
     });
   };
+  const location = useLocation();
+  const keys = location.state?.keys;
+  console.log(location);
+  const allProductsLink = `/products${keys ? `?${keys}` : ""}`;
+  console.log(location);
   return (
     <div className="w-[90%] mx-auto my-10">
       <Button
         asChild
         variant={"outline"}
         className="cursor-pointer"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate(allProductsLink)}
       >
         <p
           className="flex items-center gap-3"

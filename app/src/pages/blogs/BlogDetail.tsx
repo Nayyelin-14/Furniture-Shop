@@ -17,7 +17,7 @@ const BlogDetail = () => {
   const { data: postDetail } = useSuspenseQuery(
     SinglePostQuery(Number(postId))
   );
-  console.log(postDatas, postDetail);
+
   return (
     <div className="mx-auto w-[90%] my-10">
       <div className="flex flex-col lg:flex-row gap-10 lg:gap-0">

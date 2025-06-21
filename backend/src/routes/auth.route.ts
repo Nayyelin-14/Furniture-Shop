@@ -7,6 +7,7 @@ import {
   veridyOtp,
 } from "../controllers/auth/auth.con";
 import {
+  changeNewPassword,
   forgetPassword,
   resetPassowrd,
   verifyOtpForPassword,
@@ -25,6 +26,9 @@ router.post("/logout", logout);
 router.post("/forget-password", forgetPassword);
 router.post("/verify", verifyOtpForPassword);
 router.post("/reset-password", resetPassowrd);
+
+//change to new password
+router.post("/change-password", authMiddleware, changeNewPassword);
 
 router.get("/auth-check", authMiddleware, authcheck);
 export default router;

@@ -420,7 +420,7 @@ export const login = [
       randomToken: generateRefreshToken,
       errorLoginCount: 0,
     };
-    await updateUser(updateUserData, user!.id);
+    const updatedUser = await updateUser(updateUserData, user!.id);
 
     const option: CookieOptions = {
       httpOnly: true,
@@ -441,6 +441,7 @@ export const login = [
       .json({
         message: "Successfully Logged In",
         userId: user!.id,
+        user: updatedUser,
       });
   },
 ];

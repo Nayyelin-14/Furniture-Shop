@@ -37,7 +37,7 @@ app.use(express.static("upload/images"));
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(compression({}));
-app.use(rateLimiter);
+// app.use(rateLimiter);
 app.use(helmet());
 app.set("trust proxy", true);
 app.use((req, res, next) => {

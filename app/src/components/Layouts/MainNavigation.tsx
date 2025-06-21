@@ -8,7 +8,12 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "../ui/navigation-menu";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { cn } from "../../lib/utils";
 import type { MainNavItem } from "../../types";
 import { siteConfig } from "../../config/site";
@@ -20,6 +25,10 @@ interface MenuType {
 }
 
 const MainNavigation = ({ items }: MenuType) => {
+  const location = useLocation();
+  const keys = location.state?.keys;
+  console.log(location);
+  const productsLink = `/products${keys ? `?${keys}` : ""}`;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   return (
@@ -27,7 +36,10 @@ const MainNavigation = ({ items }: MenuType) => {
       <Button
         variant={"ghost"}
         onClick={
-          () => navigate("/", { state: { filters: searchParams.toString() } }) //state ဆိုတဲ့ additional data တစ်ခု
+          () =>
+            navigate("/", {
+              state: { keys: searchParams && searchParams.toString() },
+            }) //state ဆိုတဲ့ additional data တစ်ခု
         }
         className="flex items-center space-x-2 hover:bg-white cursor-pointer"
       >
@@ -46,7 +58,7 @@ const MainNavigation = ({ items }: MenuType) => {
                     <NavigationMenuLink asChild>
                       <Link
                         className="flex size-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                        to="/products"
+                        to={productsLink}
                       >
                         <Icons.logo className="size-6" aria-hidden="true" />
                         <div className="mb-2 mt-4 text-lg font-medium">
