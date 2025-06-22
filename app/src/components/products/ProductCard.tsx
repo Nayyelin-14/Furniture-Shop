@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import type { ProductsType } from "../../types";
 import { Button } from "../ui/button";
 import {
@@ -31,6 +31,12 @@ const ProductCard = ({ product, className }: ProductsProps) => {
       quantity: 1,
     });
   };
+  const location = useLocation();
+
+  const detailLink = {
+    pathname: `/products/${product.id}`,
+    search: location.search, // carry filters as query string
+  };
   return (
     <Card
       className={cn(
@@ -38,7 +44,10 @@ const ProductCard = ({ product, className }: ProductsProps) => {
         className
       )}
     >
-      <Link to={`/products/${product.id}`} aria-label={product.name}>
+      <Link
+        to={detailLink || `/products/${product.id}`}
+        aria-label={product.name}
+      >
         <CardHeader className="p-0">
           <AspectRatio ratio={1 / 1} className="bg-muted p-0">
             <img

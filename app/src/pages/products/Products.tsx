@@ -53,10 +53,10 @@ export const Products = () => {
   const handleFilterChange = (categories: string[], types: string[]) => {
     const newParams = new URLSearchParams(); //creating a new, empty query parameter object
     if (categories.length > 0) {
-      newParams.set("categories", encodeURIComponent(categories.join(",")));
+      newParams.set("categories", categories.join(","));
     }
     if (types.length > 0) {
-      newParams.set("types", encodeURIComponent(types.join(",")));
+      newParams.set("types", types.join(","));
     }
     //clear query if new params come
     queryClient.cancelQueries({ queryKey: ["products", "infinite"] });

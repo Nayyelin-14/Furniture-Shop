@@ -27,7 +27,7 @@ interface MenuType {
 const MainNavigation = ({ items }: MenuType) => {
   const location = useLocation();
   const keys = location.state?.keys;
-  console.log(location);
+
   const productsLink = `/products${keys ? `?${keys}` : ""}`;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

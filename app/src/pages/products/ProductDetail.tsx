@@ -53,17 +53,18 @@ const ProductDetail = () => {
     });
   };
   const location = useLocation();
-  const keys = location.state?.keys;
+  console.log(location.search);
   console.log(location);
-  const allProductsLink = `/products${keys ? `?${keys}` : ""}`;
-  console.log(location);
+  const handleBack = () => {
+    navigate(`/products${location.search}`);
+  };
   return (
     <div className="w-[90%] mx-auto my-10">
       <Button
         asChild
         variant={"outline"}
         className="cursor-pointer"
-        onClick={() => navigate(allProductsLink)}
+        onClick={handleBack}
       >
         <p
           className="flex items-center gap-3"
